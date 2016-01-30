@@ -8,6 +8,7 @@ public class GameController : StateBehaviour
     {
         START,
         PLAY,
+        RULES,
         END
     }
 
