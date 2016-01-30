@@ -8,13 +8,20 @@ public class Player : StateBehaviour {
 
     public PlayerParameters.PlayerNumber playerNum;
 
+    private int score = 0;
+    private int mistakes = 0;
+
     private float playerSpeed;
 
     private float drinkTime;
     private float lookTime;
+    private float reportTime;
+    private float tauntTime;
 
     private float drinkTimer;
     private float lookTimer;
+    private float reportTimer;
+    private float tauntTimer;
 
     private GameObject interactiveObject = null;
 
@@ -27,7 +34,9 @@ public class Player : StateBehaviour {
         WALK,
         DRINK,
         LOOK,
-        IDLE
+        IDLE,
+        REPORT,
+        TAUNT
     }
 
 	// Use this for initialization
@@ -93,6 +102,11 @@ public class Player : StateBehaviour {
                 ChangeState(PlayerStates.DRINK, StateTransition.Safe);
             }
         }
+        
+        if (input.x == 0 && input.y == 0)
+        {
+            ChangeState(PlayerStates.IDLE, StateTransition.Safe);
+        } 
     }
     private void WALK_Exit()
     {
@@ -107,6 +121,7 @@ public class Player : StateBehaviour {
     {
         drinkTimer = 0;
         controller.velocity = new Vector2(0, 0);
+        score += 100;
     }
     private void DRINK_Update()
     {
@@ -130,6 +145,7 @@ public class Player : StateBehaviour {
     {
         lookTimer = 0;
         controller.velocity = new Vector2(0, 0);
+        score += 50;
     }
     private void LOOK_Update()
     {
@@ -144,19 +160,84 @@ public class Player : StateBehaviour {
     {
 
     }
-    public void InitPlayer(float playerSpeed, float drinkTime, float lookTime)
+    public void InitPlayer(float playerSpeed, float drinkTime, float lookTime, float reportTime, float tauntTime)
     {
         this.playerSpeed = playerSpeed;
         this.drinkTime = drinkTime;
         this.lookTime = lookTime;
+
+        this.reportTime = reportTime;
+        this.tauntTime = tauntTime;
+
+        score = 0;
+        mistakes = 0;
+    }
+
+    /* ==========================
+   * ----- REPORT state ------
+   * When the level is started or restarted    
+   */
+    private void REPORT_Enter()
+    {
+        reportTimer = 0;
+        controller.velocity = new Vector2(0, 0);
+    }
+    private void REPORT_Update()
+    {
+        reportTimer += Time.deltaTime;
+
+        if (reportTimer >= reportTime)
+        {
+            ChangeState(PlayerStates.IDLE, StateTransition.Safe);
+        }
+    }
+    private void REPORT_Exit()
+    {
+
+    }
+
+    /* ==========================
+   * ----- TAUNT state ------
+   * When the level is started or restarted    
+   */
+    private void TAUNT_Enter()
+    {
+        tauntTimer = 0;
+        controller.velocity = new Vector2(0, 0);
+    }
+    private void TAUNT_Update()
+    {
+        tauntTimer += Time.deltaTime;
+
+        if (tauntTimer >= tauntTime)
+        {
+            ChangeState(PlayerStates.IDLE, StateTransition.Safe);
+        }
+
+    }
+    private void TAUNT_Exit()
+    {
+
+    }
+
+    public void InitPlayer(float playerSpeed, float drinkTime, float lookTime, float reportTime)
+    {
+        this.playerSpeed = playerSpeed;
+        this.drinkTime = drinkTime;
+        this.lookTime = lookTime;
+
+        score = 0;
+        mistakes = 0;
     }
 
 	// Update is called once per frame
 	void Update () {
 
+        //Debug.Log(playerNum + " " + stateMachine.GetState());
+        
         if (GameEvent.GameStarting)
         {
-            _MoveGhost();
+            MoveGhost();
         }
         else 
         {
@@ -166,11 +247,72 @@ public class Player : StateBehaviour {
             input = new Vector2(Input.GetAxisRaw("Horizontal_"+playerNum), Input.GetAxisRaw("Vertical_"+playerNum));
 
             if (stateMachine.GetState().Equals(PlayerStates.WALK) || stateMachine.GetState().Equals(PlayerStates.IDLE))
-                controller.velocity = input * ((GameEvent.GameEnding)?playerSpeed*0.3f:playerSpeed);
+            {
+                controller.velocity = input * ((GameEvent.GameEnding) ? playerSpeed * 0.3f : playerSpeed);
+                CheckReport();
+            }
+                
         }
 	}
 
-    private void _MoveGhost()
+    private void CheckReport()
+    {
+
+       if (Input.GetButtonDown("ReportP1_" + playerNum))
+        {
+            if (playerNum == PlayerParameters.PlayerNumber.P1)
+            {
+                Debug.Log("Taunt");
+                ChangeState(PlayerStates.TAUNT, StateTransition.Safe);
+            }
+            else
+            {
+                Debug.Log(playerNum + " is reporting P1");
+                ChangeState(PlayerStates.REPORT, StateTransition.Safe);
+            }
+        }
+        else if (Input.GetButtonDown("ReportP2_" + playerNum))
+        {
+            if (playerNum == PlayerParameters.PlayerNumber.P2)
+            {
+                Debug.Log("Taunt");
+                ChangeState(PlayerStates.TAUNT, StateTransition.Safe);
+            }
+            else
+            {
+                Debug.Log(playerNum + " is reporting P2");
+                ChangeState(PlayerStates.REPORT, StateTransition.Safe);
+            }
+        }
+        else if (Input.GetButtonDown("ReportP3_" + playerNum))
+        {
+            if (playerNum == PlayerParameters.PlayerNumber.P3)
+            {
+                Debug.Log("Taunt");
+                ChangeState(PlayerStates.TAUNT, StateTransition.Safe);
+            }
+            else
+            {
+                Debug.Log(playerNum + " is reporting P3");
+                ChangeState(PlayerStates.REPORT, StateTransition.Safe);
+            }
+        }
+        else if (Input.GetButtonDown("ReportP4_" + playerNum))
+        {
+            if (playerNum == PlayerParameters.PlayerNumber.P4)
+            {
+                Debug.Log("Taunt");
+                ChangeState(PlayerStates.TAUNT, StateTransition.Safe);
+            }
+            else
+            {
+                Debug.Log(playerNum + " is reporting P4");
+                ChangeState(PlayerStates.REPORT, StateTransition.Safe);
+            }
+        }
+    }
+
+    private void MoveGhost()
     {
         if (collider.enabled)
             collider.enabled = false;
@@ -206,4 +348,15 @@ public class Player : StateBehaviour {
                 controller.isKinematic = true;
         }
     } */
+
+    public int GetScore()
+    {
+        return this.score;
+    }
+
+    public int GetMistakes()
+    {
+        return this.mistakes;
+    }
+
 }

@@ -30,17 +30,26 @@ public class GameController : StateBehaviour
         return GameTimer;
     }
 
+    public int GetScoreFromPlayer(int i)
+    {
+        return this.players[i-1].GetScore();
+    }
+
+    public int GetMistakesFromPlayer(int i)
+    {
+        return this.players[i-1].GetMistakes();
+    }
+
 	// Use this for initialization
 	void Start () {
 
         for (int i = 0; i < players.Length; i++)
         {
-            players[i].InitPlayer(PlayerParameters.PlayerSpeed, PlayerParameters.DrinkTime, PlayerParameters.LookTime);
+            players[i].InitPlayer(PlayerParameters.PlayerSpeed, PlayerParameters.DrinkTime, PlayerParameters.LookTime, PlayerParameters.ReportTime, PlayerParameters.TauntTime);
         }
 
         Initialize<GameStates>();
         ChangeState(GameStates.START);
-
 	}
 	
 	// Update is called once per frame
@@ -61,15 +70,15 @@ public class GameController : StateBehaviour
         ScreenFader.alpha = 1;
         FadeTimer = 0f;
 
-        Vector3 p1Pos = EntryPoint.transform.position;
-        p1Pos.z = 0;
-        p1Pos.x -= 3;
-        p1Pos.y += 2;
+        Vector3 playerPos = EntryPoint.transform.position;
+        playerPos.z = 0;
+        playerPos.x -= 3;
+        playerPos.y += 1.5f;
 
         for (int i = 0; i < players.Length; i++)
         {
-            players[i].transform.position = p1Pos;
-            p1Pos.y -= 1;
+            players[i].transform.position = playerPos;
+            playerPos.y -= 1;
         }
             
     }
@@ -136,5 +145,15 @@ public class GameController : StateBehaviour
     private void END_Exit()
     {
         GameEvent.GameEnding = false;
+    }
+
+    public class Report
+    {
+        PlayerParameters.PlayerNumber source, target;
+
+        float gameTime;
+        PlayerParameters.InteractiveObject usedObject;
+        PlayerParameters.Interaction type;
+
     }
 }
