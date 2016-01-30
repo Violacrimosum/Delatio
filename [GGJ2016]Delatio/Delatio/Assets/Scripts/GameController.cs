@@ -13,11 +13,13 @@ public class GameController : StateBehaviour
 
     public GameObject EntryPoint;
 
-    public Player p1;
+    public Player[] players;
+
+    public PlayerParameters PlayerParameters;
 
     public CanvasGroup ScreenFader;
     public float FadeTime = 3f;
-    public float GameEndTime = 10f;
+    public float GameEndTime = 50f;
 
     private float GameTimer = 0f;
 
@@ -31,8 +33,14 @@ public class GameController : StateBehaviour
 	// Use this for initialization
 	void Start () {
 
+        for (int i = 0; i < players.Length; i++)
+        {
+            players[i].InitPlayer(PlayerParameters.PlayerSpeed, PlayerParameters.DrinkTime, PlayerParameters.LookTime);
+        }
+
         Initialize<GameStates>();
         ChangeState(GameStates.START);
+
 	}
 	
 	// Update is called once per frame
@@ -47,14 +55,23 @@ public class GameController : StateBehaviour
     private void START_Enter()
     {
         GameTimer = 0;
+
         GameEvent.GameStarting = true;
+
         ScreenFader.alpha = 1;
         FadeTimer = 0f;
 
         Vector3 p1Pos = EntryPoint.transform.position;
         p1Pos.z = 0;
         p1Pos.x -= 3;
-        p1.transform.position = p1Pos;
+        p1Pos.y += 2;
+
+        for (int i = 0; i < players.Length; i++)
+        {
+            players[i].transform.position = p1Pos;
+            p1Pos.y -= 1;
+        }
+            
     }
     private void START_Update()
     {
