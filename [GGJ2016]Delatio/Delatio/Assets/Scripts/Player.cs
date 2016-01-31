@@ -8,6 +8,8 @@ public class Player : StateBehaviour {
 
     public PlayerParameters.PlayerNumber playerNum;
 
+    public GameController.Ritual[] rituals;
+
     private int score = 0;
     private int mistakes = 0;
 
@@ -28,6 +30,9 @@ public class Player : StateBehaviour {
     private Rigidbody2D controller;
     private BoxCollider2D collider;
 
+    private GameController.Report pendingReport = null;
+
+    public int reportResult = 0;
     private Vector2 input;
     public enum PlayerStates
     {
@@ -49,6 +54,33 @@ public class Player : StateBehaviour {
         Initialize<PlayerStates>();
         ChangeState(PlayerStates.IDLE);
 	}
+
+    public void GettingReported()
+    {
+        this.score -= 200;
+        if (score < 0)
+        {
+            score = 0;
+        }
+    }
+
+    public GameController.Ritual ValidateCurrentRitual(float GameTime)
+    {
+        PlayerParameters.Interaction interaction = PlayerParameters.Interaction.TAKE;
+
+        if(GetState().Equals("LOOK")){
+            interaction = PlayerParameters.Interaction.LOOK;
+        }
+        GameController.Ritual ritual = new GameController.Ritual(GameTime, 
+            PlayerParameters.InteractiveObject.COFFEE_MACHINE, 
+            interaction);
+
+        return ritual;
+    }
+
+    public bool IsPlayerRitual(GameController.Ritual ritual){
+        return false;
+    }
 
     /* ==========================
     * ----- IDLE state ------
@@ -181,6 +213,24 @@ public class Player : StateBehaviour {
     {
         reportTimer = 0;
         controller.velocity = new Vector2(0, 0);
+
+        if (playerNum.Equals("P1"))
+        {
+            GameEvent.P1Ritual = this.pendingReport;
+            this.pendingReport = null;
+        }
+        else if(playerNum.Equals("P2")){
+            GameEvent.P2Ritual = this.pendingReport;
+            this.pendingReport = null;
+        }
+        else if(playerNum.Equals("P3")){
+            GameEvent.P3Ritual = this.pendingReport;
+            this.pendingReport = null;
+        }
+        else if(playerNum.Equals("P4")){
+            GameEvent.P4Ritual = this.pendingReport;
+            this.pendingReport = null;
+        }
     }
     private void REPORT_Update()
     {
@@ -193,7 +243,20 @@ public class Player : StateBehaviour {
     }
     private void REPORT_Exit()
     {
-
+        if (reportResult == 1)
+        {
+            this.score += 200;
+        }
+        else if (reportResult == -1)
+        {
+            this.score -= 200;
+            if (score < 0)
+            {
+                score = 0;
+            }
+            this.mistakes++;
+        }
+        reportResult = 0;
     }
 
     /* ==========================
@@ -268,6 +331,7 @@ public class Player : StateBehaviour {
             else
             {
                 Debug.Log(playerNum + " is reporting P1");
+                this.pendingReport = new GameController.Report(playerNum, PlayerParameters.PlayerNumber.P1);
                 ChangeState(PlayerStates.REPORT, StateTransition.Safe);
             }
         }
@@ -281,6 +345,7 @@ public class Player : StateBehaviour {
             else
             {
                 Debug.Log(playerNum + " is reporting P2");
+                this.pendingReport = new GameController.Report(playerNum, PlayerParameters.PlayerNumber.P2);
                 ChangeState(PlayerStates.REPORT, StateTransition.Safe);
             }
         }
@@ -294,6 +359,7 @@ public class Player : StateBehaviour {
             else
             {
                 Debug.Log(playerNum + " is reporting P3");
+                this.pendingReport = new GameController.Report(playerNum, PlayerParameters.PlayerNumber.P3);
                 ChangeState(PlayerStates.REPORT, StateTransition.Safe);
             }
         }
@@ -307,6 +373,7 @@ public class Player : StateBehaviour {
             else
             {
                 Debug.Log(playerNum + " is reporting P4");
+                this.pendingReport = new GameController.Report(playerNum, PlayerParameters.PlayerNumber.P4);
                 ChangeState(PlayerStates.REPORT, StateTransition.Safe);
             }
         }
