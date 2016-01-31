@@ -91,6 +91,8 @@ public class GameController : StateBehaviour
         ScreenFader.alpha = 1;
         FadeTimer = 0f;
 
+        HabitsCanvas.alpha = 0;
+        
         Vector3 playerPos = EntryPoint.transform.position;
         playerPos.z = 0;
         playerPos.x -= 3;
@@ -126,7 +128,7 @@ public class GameController : StateBehaviour
     */
     private void PLAY_Enter()
     {
-        PlayerInfoCanvas.GetComponent<Animator>().SetBool("IsVisible", true);
+        PlayerInfoCanvas.GetComponent<Animator>().SetBool("isVisible", true);
     }
     private void PLAY_Update()
     {
@@ -134,7 +136,31 @@ public class GameController : StateBehaviour
 
         if (GameEvent.P1Ritual != null)
         {
+            Debug.Log(GameEvent.P1Ritual.ToString());
 
+            FillReportRitual(GameEvent.P1Ritual);
+            GameEvent.P1Ritual = null;
+        }
+        if (GameEvent.P2Ritual != null)
+        {
+            Debug.Log(GameEvent.P2Ritual.ToString());
+
+            FillReportRitual(GameEvent.P2Ritual);
+            GameEvent.P2Ritual = null;
+        }
+        if (GameEvent.P3Ritual != null)
+        {
+            Debug.Log(GameEvent.P3Ritual.ToString());
+
+            FillReportRitual(GameEvent.P3Ritual);
+            GameEvent.P3Ritual = null;
+        }
+        if (GameEvent.P4Ritual != null)
+        {
+            Debug.Log(GameEvent.P4Ritual.ToString());
+
+            FillReportRitual(GameEvent.P4Ritual);
+            GameEvent.P4Ritual = null;
         }
         if (GameTimer > GameEndTime)
         {
@@ -143,7 +169,7 @@ public class GameController : StateBehaviour
     }
     private void PLAY_Exit()
     {
-        PlayerInfoCanvas.GetComponent<Animator>().SetBool("IsVisible", false);
+        PlayerInfoCanvas.GetComponent<Animator>().SetBool("isVisible", false);
     }
 
     /* ==========================
@@ -178,7 +204,7 @@ public class GameController : StateBehaviour
     */
     private void INIT_Enter()
     {
-        GenerateRituals();
+        
         ScreenFader.alpha = 1;
         HabitsCanvas.alpha = 1;
         FadeTimer = 0f;
@@ -208,6 +234,7 @@ public class GameController : StateBehaviour
     private void INIT_Exit()
     {
         ScreenFader.alpha = 0;
+        GenerateRituals();
     }
 
     /* ==========================
@@ -229,23 +256,23 @@ public class GameController : StateBehaviour
         }
 
         if(Input.GetButton("ReportP1_P1")){
-            Debug.Log("P1 List");
+            //Debug.Log("P1 List");
             HabitsCanvas.GetComponent<Animator>().SetInteger("PlayerRituals", 1);
         }
         else if(Input.GetButton("ReportP2_P2")){
-            Debug.Log("P2 List");
+            //Debug.Log("P2 List");
             HabitsCanvas.GetComponent<Animator>().SetInteger("PlayerRituals", 2);
         }
         else if(Input.GetButton("ReportP3_P3")){
-            Debug.Log("P3 List");
+            //Debug.Log("P3 List");
             HabitsCanvas.GetComponent<Animator>().SetInteger("PlayerRituals", 3);
         }
         else if(Input.GetButton("ReportP4_P4")){
-            Debug.Log("P4 List");
+            //Debug.Log("P4 List");
             HabitsCanvas.GetComponent<Animator>().SetInteger("PlayerRituals", 4);
         }
         else{
-             Debug.Log("Idle");
+             //Debug.Log("Idle");
              HabitsCanvas.GetComponent<Animator>().SetInteger("PlayerRituals", 0);
         }
     }
@@ -302,9 +329,10 @@ public class GameController : StateBehaviour
         switch (report.target)
         {
             case global::PlayerParameters.PlayerNumber.P1 :
-                if(players[0].GetState().Equals("DRINK") ||
-                    players[0].GetState().Equals("LOOK"))
+                if(players[0].GetState().Equals(Player.PlayerStates.LOOK) ||
+                    players[0].GetState().Equals(Player.PlayerStates.DRINK))
                 {
+                    Debug.Log("Report P1 during an action");
                     report.ritual = players[0].ValidateCurrentRitual(GameTimer);
 
                     if (players[0].IsPlayerRitual(report.ritual))
@@ -317,25 +345,99 @@ public class GameController : StateBehaviour
                         CheckResultOfReport(report, false);
                     }
                 }
+                else
+                {
+                    CheckResultOfReport(report, false);
+                }
                 break;
             case global::PlayerParameters.PlayerNumber.P2:
+                if (players[0].GetState().Equals(Player.PlayerStates.LOOK) ||
+                   players[0].GetState().Equals(Player.PlayerStates.DRINK))
+                {
+                    Debug.Log("Report P2 during an action");
+                    report.ritual = players[1].ValidateCurrentRitual(GameTimer);
 
+                    if (players[1].IsPlayerRitual(report.ritual))
+                    {
+                        players[1].GettingReported();
+                        CheckResultOfReport(report, true);
+                    }
+                    else
+                    {
+                        CheckResultOfReport(report, false);
+                    }
+                }
+                else
+                {
+                    CheckResultOfReport(report, false);
+                }
                 break;
             case global::PlayerParameters.PlayerNumber.P3:
+                if (players[0].GetState().Equals(Player.PlayerStates.LOOK) ||
+                    players[0].GetState().Equals(Player.PlayerStates.DRINK))
+                {
+                    Debug.Log("Report P3 during an action");
+                    report.ritual = players[2].ValidateCurrentRitual(GameTimer);
 
+                    if (players[2].IsPlayerRitual(report.ritual))
+                    {
+                        players[2].GettingReported();
+                        CheckResultOfReport(report, true);
+                    }
+                    else
+                    {
+                        CheckResultOfReport(report, false);
+                    }
+                }
+                else
+                {
+                    CheckResultOfReport(report, false);
+                }
                 break;
             case global::PlayerParameters.PlayerNumber.P4:
+                if (players[0].GetState().Equals(Player.PlayerStates.LOOK) ||
+                   players[0].GetState().Equals(Player.PlayerStates.DRINK))
+                {
+                    Debug.Log("Report P4 during an action");
+                    report.ritual = players[3].ValidateCurrentRitual(GameTimer);
 
+                    if (players[3].IsPlayerRitual(report.ritual))
+                    {
+                        players[3].GettingReported();
+                        CheckResultOfReport(report, true);
+                    }
+                    else
+                    {
+                        CheckResultOfReport(report, false);
+                    }
+                }
+                else
+                {
+                    CheckResultOfReport(report, false);
+                }
                 break;
         }
     }
 
     public Ritual GenerateRitual(int i)
     {
-        float gameTime = (GameEndTime / 3) / 2 + (GameEndTime / 3) * (i - 1);
+        float gameTime = (GameEndTime / 3) / 2 + (GameEndTime / 3) * (i);
+
+        Random.Range(0, GameEndTime * 0.1f);
+
+        if (Random.Range(0, 2) >= 1f)
+        {
+            gameTime -= Random.Range(0, 15);
+        }
+        else
+        {
+            gameTime += Random.Range(0, 15);
+        }
+
+        Debug.Log(gameTime);
         PlayerParameters.Interaction type = PlayerParameters.Interaction.LOOK;
 
-        if (Random.Range(0, 1) >= 0.5f)
+        if (Random.Range(0, 2) >= 1f)
         {
             type = PlayerParameters.Interaction.TAKE;
         }
@@ -368,6 +470,11 @@ public class GameController : StateBehaviour
             this.source = source;
             this.target = target;
         }
+
+        public string ToString()
+        {
+            return "Player " + source + " is reporting " + target;
+        }
     }
 
     public class Ritual
@@ -394,17 +501,17 @@ public class GameController : StateBehaviour
         {
             switch (usedObject)
             {
-                case PlayerParameters.InteractiveObject.COFFEE_MACHINE :
+                case PlayerParameters.InteractiveObject.COFFEE_MACHINE:
                     if (type.Equals(PlayerParameters.Interaction.LOOK))
                         return "Look at the coffee machine";
                     else
                         return "Drink a coffee at the coffee machine";
-                case PlayerParameters.InteractiveObject.COMPUTER :
+                case PlayerParameters.InteractiveObject.COMPUTER:
                     if (type.Equals(PlayerParameters.Interaction.LOOK))
                         return "Look at computer";
                     else
                         return "Work on a computer";
-                case PlayerParameters.InteractiveObject.WINDOW :
+                case PlayerParameters.InteractiveObject.WINDOW:
                     if (type.Equals(PlayerParameters.Interaction.LOOK))
                         return "Look through the window";
                     else
@@ -412,8 +519,30 @@ public class GameController : StateBehaviour
                 default:
                     return "And that's a bug !!";
             }
-
-
         }
+
+        public bool Equals(Ritual other){
+
+            if (!type.Equals(other.type))
+                return false;
+
+
+            if (!usedObject.Equals(other.usedObject))
+                return false;
+
+            Debug.Log("Game time 1 : "+gameTime);
+            Debug.Log("Game time 2 : " + other.gameTime);
+            if (gameTime > other.gameTime + 5)
+                return false;
+
+            if (gameTime < other.gameTime - 5)
+                return false;
+
+
+            Debug.Log("Game time is good");
+
+            return true;
+        }
+        
     }
 }

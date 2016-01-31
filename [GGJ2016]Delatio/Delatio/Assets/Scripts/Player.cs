@@ -8,7 +8,7 @@ public class Player : StateBehaviour {
 
     public PlayerParameters.PlayerNumber playerNum;
 
-    public GameController.Ritual[] rituals;
+    public GameController.Ritual[] rituals = new GameController.Ritual[3];
 
     private int score = 0;
     private int mistakes = 0;
@@ -66,20 +66,33 @@ public class Player : StateBehaviour {
 
     public GameController.Ritual ValidateCurrentRitual(float GameTime)
     {
+        if (this.interactiveObject == null)
+        {
+            return null;
+        }
+
         PlayerParameters.Interaction interaction = PlayerParameters.Interaction.TAKE;
 
-        if(GetState().Equals("LOOK")){
+        if(GetState().Equals(PlayerStates.LOOK)){
             interaction = PlayerParameters.Interaction.LOOK;
         }
+
+        Debug.Log(interaction);
         GameController.Ritual ritual = new GameController.Ritual(GameTime, 
-            PlayerParameters.InteractiveObject.COFFEE_MACHINE, 
+            this.interactiveObject.GetComponent<InteractiveObject>().type, 
             interaction);
 
         return ritual;
     }
 
     public bool IsPlayerRitual(GameController.Ritual ritual){
-        return false;
+
+        for (int i = 0; i < 3; i++)
+        {
+            if (ritual.Equals(rituals[i]))
+                return true;
+        }
+            return false;
     }
 
     /* ==========================
@@ -153,7 +166,12 @@ public class Player : StateBehaviour {
     {
         drinkTimer = 0;
         controller.velocity = new Vector2(0, 0);
-        score += 100;
+
+        if (IsPlayerRitual(ValidateCurrentRitual(GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().GetTime())))
+        {
+            score += 100;
+        }
+        
     }
     private void DRINK_Update()
     {
@@ -176,8 +194,12 @@ public class Player : StateBehaviour {
     private void LOOK_Enter()
     {
         lookTimer = 0;
+        
         controller.velocity = new Vector2(0, 0);
-        score += 50;
+        if (IsPlayerRitual(ValidateCurrentRitual(GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>().GetTime())))
+        {
+            score += 100;
+        }
     }
     private void LOOK_Update()
     {
@@ -214,20 +236,24 @@ public class Player : StateBehaviour {
         reportTimer = 0;
         controller.velocity = new Vector2(0, 0);
 
-        if (playerNum.Equals("P1"))
+        if (playerNum.Equals(PlayerParameters.PlayerNumber.P1))
         {
+            
             GameEvent.P1Ritual = this.pendingReport;
             this.pendingReport = null;
         }
-        else if(playerNum.Equals("P2")){
+        else if (playerNum.Equals(PlayerParameters.PlayerNumber.P2))
+        {
             GameEvent.P2Ritual = this.pendingReport;
             this.pendingReport = null;
         }
-        else if(playerNum.Equals("P3")){
+        else if (playerNum.Equals(PlayerParameters.PlayerNumber.P3))
+        {
             GameEvent.P3Ritual = this.pendingReport;
             this.pendingReport = null;
         }
-        else if(playerNum.Equals("P4")){
+        else if (playerNum.Equals(PlayerParameters.PlayerNumber.P4))
+        {
             GameEvent.P4Ritual = this.pendingReport;
             this.pendingReport = null;
         }
@@ -296,7 +322,7 @@ public class Player : StateBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-        //Debug.Log(playerNum + " " + stateMachine.GetState());
+        //Debug.Log(playerNum + " " + this.pendingReport);
         
         if (GameEvent.GameStarting)
         {
@@ -325,12 +351,12 @@ public class Player : StateBehaviour {
         {
             if (playerNum == PlayerParameters.PlayerNumber.P1)
             {
-                Debug.Log("Taunt");
+                //Debug.Log("Taunt");
                 ChangeState(PlayerStates.TAUNT, StateTransition.Safe);
             }
             else
             {
-                Debug.Log(playerNum + " is reporting P1");
+                //Debug.Log(playerNum + " is reporting P1");
                 this.pendingReport = new GameController.Report(playerNum, PlayerParameters.PlayerNumber.P1);
                 ChangeState(PlayerStates.REPORT, StateTransition.Safe);
             }
@@ -339,12 +365,12 @@ public class Player : StateBehaviour {
         {
             if (playerNum == PlayerParameters.PlayerNumber.P2)
             {
-                Debug.Log("Taunt");
+                //Debug.Log("Taunt");
                 ChangeState(PlayerStates.TAUNT, StateTransition.Safe);
             }
             else
             {
-                Debug.Log(playerNum + " is reporting P2");
+                //Debug.Log(playerNum + " is reporting P2");
                 this.pendingReport = new GameController.Report(playerNum, PlayerParameters.PlayerNumber.P2);
                 ChangeState(PlayerStates.REPORT, StateTransition.Safe);
             }
@@ -353,12 +379,12 @@ public class Player : StateBehaviour {
         {
             if (playerNum == PlayerParameters.PlayerNumber.P3)
             {
-                Debug.Log("Taunt");
+                //Debug.Log("Taunt");
                 ChangeState(PlayerStates.TAUNT, StateTransition.Safe);
             }
             else
             {
-                Debug.Log(playerNum + " is reporting P3");
+                //Debug.Log(playerNum + " is reporting P3");
                 this.pendingReport = new GameController.Report(playerNum, PlayerParameters.PlayerNumber.P3);
                 ChangeState(PlayerStates.REPORT, StateTransition.Safe);
             }
@@ -367,12 +393,12 @@ public class Player : StateBehaviour {
         {
             if (playerNum == PlayerParameters.PlayerNumber.P4)
             {
-                Debug.Log("Taunt");
+                //Debug.Log("Taunt");
                 ChangeState(PlayerStates.TAUNT, StateTransition.Safe);
             }
             else
             {
-                Debug.Log(playerNum + " is reporting P4");
+                //Debug.Log(playerNum + " is reporting P4");
                 this.pendingReport = new GameController.Report(playerNum, PlayerParameters.PlayerNumber.P4);
                 ChangeState(PlayerStates.REPORT, StateTransition.Safe);
             }
